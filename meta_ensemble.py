@@ -29,7 +29,7 @@ NN_WEIGHT = 0.0600
 
 XGB1_WEIGHT = 0.8000  # Weight of first in combination of two XGB models
 
-BASELINE_PRED = 0.0115   # Baseline based on mean of training data, per Oleg
+BASELINE_PRED = 0.0115   # Baseline based on mean of training data
 
 
 # READ IN RAW DATA
@@ -40,15 +40,6 @@ train = pd.read_csv("./train_2016_v2.csv")
 
 
 ##  LightGBM  ##
-
-# This section is (I think) originally derived from SIDHARTH's script:
-#   https://www.kaggle.com/sidharthkumar/trying-lightgbm
-# which was forked and tuned by Yuqing Xue:
-#   https://www.kaggle.com/yuqingxue/lightgbm-85-97
-# and updated by me (Andy Harless):
-#   https://www.kaggle.com/aharless/lightgbm-with-outliers-remaining
-# and a lot of additional changes have happened since then
-
 # PROCESS DATA FOR LIGHTGBM
 
 print("\nProcessing data for LightGBM ...")
@@ -120,14 +111,6 @@ p_test = clf.predict(x_test)
 
 
 ##  XGBoost   ##
-
-
-# This section is (I think) originally derived from Infinite Wing's script:
-#   https://www.kaggle.com/infinitewing/xgboost-without-outliers-lb-0-06463
-# inspired by this thread:
-#   https://www.kaggle.com/c/zillow-prize-1/discussion/33710
-# but the code has gone through a lot of changes since then
-
 
 # RE-READ PROPERTIES FILE
 # (I tried keeping a copy, but the program crashed.)
@@ -228,16 +211,8 @@ print("\nCombined XGBoost predictions:")
 print(pd.DataFrame(xgb_pred).head())
 
 ######################
-######################
 ##  Neural Network  ##
 ######################
-######################
-
-# Neural network copied from this script:
-#   https://www.kaggle.com/aharless/keras-neural-network-lb-06492 (version 20)
-# which was built on the skeleton in this notebook:
-#   https://www.kaggle.com/prasunmishra/ann-using-keras
-
 
 # Read in data for neural network
 print("\n\nProcessing data for Neural Network ...")
@@ -352,11 +327,6 @@ print(pd.DataFrame(nn_pred).head())
 
 ##    OLS     ##
 
-# This section is derived from the1owl's notebook:
-#    https://www.kaggle.com/the1owl/primer-for-the-zillow-pred-approach
-# which I (Andy Harless) updated and made into a script:
-#    https://www.kaggle.com/aharless/updated-script-version-of-the1owl-s-basic-ols
-
 np.random.seed(17)
 random.seed(17)
 
@@ -393,7 +363,7 @@ train = get_features(train[col])
 test['transactiondate'] = '2016-01-01'  # should use the most common training date
 test = get_features(test[col])
 
-
+## NOT USED
 print("\nFitting OLS...")
 reg = LinearRegression(n_jobs=-1)
 reg.fit(train, y)
@@ -445,50 +415,3 @@ print("\nWriting results to disk ...")
 submission.to_csv('sub{}.csv'.format(datetime.now().strftime('%Y%m%d_%H%M%S')), index=False)
 
 print("\nFinished ...")
-
-
-########################
-########################
-##  Version Comments  ##
-########################
-########################
-
-# version 1: forked from "XGBoost, LightGBM, and OLS"
-# version 2: deleted old comments and added keras imports
-# version 3: added NN code (not using result yet)
-# version 5: use results of NN with 0.1 weight (arbitrary first guess)
-# version 7: reduce neural network weight to 0.05 and adjust others proportionally
-# version 8: reduce NN weight to 0.03
-# version 9: reduce NN weight to 0.01
-# version 10: increasee NN weight to 0.02
-# version 11: change NN parameters, increase weight to .03, and reduce OLS weight to .07
-# version 12: change NN parameters again & adjust various weights
-# version 13: more weight adjustments (NN back down to .02)
-# version 15: PReLU activations, learning rate decay
-# version 16: OLS weight up, XGB weight down, baseline weight up, increase dropout
-# version 17: weights change in opposite direction
-# version 18: change weights further in that direction
-# version 20: revert to version 17 weights & fix test dates assignment error
-# version 23: Fix date assignment error, hopefully correctly this time
-# version 32: Reduce NN weight to .015
-# version 33: Increase NN weight to .025
-# version 34: Change weighting scheme to fix error (need to subtract OLS_WEIGHT from XGB_WEIGHT)
-# version 35: Increase NN weight .03 to .04, LB .0643988 -> .0643965
-# versein 36: Try NN weight .05 -> LB .0643917
-# version 37: Try NN weight .07 -> LB .0643920
-# version 38: NN_WEIGHT=.06, XGB_WEIGHT=.58 -> LB .0643949
-# version 39: XGB_WEIGHT=.62 -> .LB 0632901
-# version 40: BASELINE_WEIGHT 0.01 to 0 -> LB .0643908
-# version 41: BASELINE_WEIGHT=.02 -> LB .0643924
-# version 42: OLS_WEIGHT .07 to .08 -> LB .0643925
-# version 43: BASELINE_WEIGHT=.01, OLS_WEIGHT=.075 -> LB .0643919
-# version 44: OLS_WEIGHT=.06 -> LB .0643926
-# version 45: OLS_WEIGHT=.07, impute NAs in LGB test set -> LB .06440
-# version 46: get rid of imputation, change to Gaussian dropout -> lB .0643909
-# version 47: Add fudge factor, back to regular dropout -> LB .0643910
-# version 48: Decrease fudge factor 1.004 to 1.002 -> LB .0643938
-# version 49: Increase fudge factor to 1.01 -> LB .0643917
-# version 50: Try FUDGE_FACTOR=.99 (equivalent to using zero baseline in ensebmle) -> LB .063974
-# version 51: FUDGE_FACTOR=1.0, should be equivalent to version 39, except for randomness
-# version 52: FUDGB_FACTOR=1.03, rough optimum based on Q4 CV for XGB alone
-#             (http://www.kaggle.com/aharless/xgboost-using-q4-for-validation-original-retuned/)
