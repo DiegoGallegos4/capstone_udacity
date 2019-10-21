@@ -67,5 +67,5 @@ tqdm==4.17.1
 traitlets==4.3.2
 urllib3==1.22
 wcwidth==0.1.7
-Werkzeug==0.12.2
+Werkzeug==0.15.3
 xgboost==0.6
